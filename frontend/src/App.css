@@ -1,0 +1,10 @@
+.App {
+    min-height: 100vh;
+}
+
+/* Headings tracking */
+h1,
+h2,
+h3 {
+    letter-spacing: -0.01em;
+}

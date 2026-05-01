@@ -1,0 +1,114 @@
+{
+  "theme": "Light",
+  "archetype": "4 (Swiss & High-Contrast - Functional variant adapted to Timber industry)",
+  "emotional_tone": "Reliable, clear, rugged, and functional.",
+  "typography": {
+    "fonts": {
+      "headings": "IBM Plex Sans, sans-serif",
+      "body": "IBM Plex Sans, sans-serif",
+      "numbers": "IBM Plex Mono, monospace"
+    },
+    "scale": {
+      "h1": "text-3xl sm:text-4xl tracking-tight font-bold",
+      "h2": "text-2xl sm:text-3xl tracking-tight font-semibold",
+      "h3": "text-xl sm:text-2xl font-semibold",
+      "body": "text-base sm:text-lg",
+      "numbers_large": "text-2xl sm:text-3xl font-mono",
+      "labels": "text-sm uppercase tracking-wider font-semibold"
+    },
+    "notes": "IBM Plex Mono is a FUNCTIONAL requirement for all numeric inputs, calculations, and tables to ensure tabular alignment. Headings should be clear and highly legible."
+  },
+  "colors": {
+    "background": {
+      "app": "bg-[#F4F4F5]",
+      "card": "bg-white",
+      "header": "bg-white",
+      "bottom_nav": "bg-white"
+    },
+    "primary": {
+      "DEFAULT": "#064E3B",
+      "hover": "#047857",
+      "foreground": "#FFFFFF",
+      "description": "Functional brand color - Dark Green"
+    },
+    "accents": {
+      "cbm1": {
+        "color": "#2563EB",
+        "description": "Blue for CBM1/CFT1 columns and calculations"
+      },
+      "cbm2": {
+        "color": "#16A34A",
+        "description": "Green for CBM2/CFT2 columns and calculations"
+      },
+      "totals": {
+        "color": "#D97706",
+        "description": "Amber for running totals and grand totals"
+      }
+    },
+    "status": {
+      "pending": "bg-gray-100 text-gray-800 border-gray-200",
+      "in_progress": "bg-blue-100 text-blue-800 border-blue-200",
+      "complete": "bg-primary text-white border-primary",
+      "warning": {
+        "border": "border-[#EA580C]",
+        "text": "text-[#EA580C]",
+        "description": "Orange warning for Girth < 35cm"
+      }
+    },
+    "text": {
+      "primary": "text-slate-900",
+      "secondary": "text-slate-600",
+      "placeholder": "text-slate-400"
+    }
+  },
+  "spacing_and_layout": {
+    "general": "Generous spacing. p-4 to p-6 for cards. Minimum 48px tap targets for mobile.",
+    "grid": "Grid columns 1 for mobile, md:grid-cols-2 or md:grid-cols-3 for desktop. Dashboard uses bento-like dense grid for KPIs.",
+    "navigation": {
+      "mobile": "Fixed bottom navigation (h-16) with large icons and minimal text. Top header for title/avatar.",
+      "desktop": "Top navigation bar (h-16). Hide bottom nav on desktop."
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "h-14 sm:h-12 text-lg rounded-md bg-[#064E3B] text-white hover:bg-[#047857] shadow-sm flex items-center justify-center font-bold px-6",
+      "secondary": "h-14 sm:h-12 text-lg rounded-md bg-white border-2 border-slate-300 text-slate-700 hover:bg-slate-50 flex items-center justify-center font-bold px-6",
+      "massive_action": "h-16 text-xl rounded-xl bg-[#064E3B] text-white w-full"
+    },
+    "inputs": {
+      "default": "h-14 rounded-md border-2 border-slate-300 bg-white px-4 text-lg focus:border-[#064E3B] focus:ring-2 focus:ring-[#064E3B]/20",
+      "numeric": "h-14 rounded-md border-2 border-slate-300 bg-white px-2 text-xl font-mono text-center focus:border-[#064E3B] focus:ring-2 focus:ring-[#064E3B]/20",
+      "warning_state": "border-2 border-[#EA580C] bg-orange-50 focus:border-[#EA580C]"
+    },
+    "cards": {
+      "base": "bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6 overflow-hidden",
+      "measurement_row": "bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-4"
+    },
+    "badges": {
+      "base": "inline-flex items-center px-3 py-1.5 rounded-full text-sm sm:text-base font-bold uppercase tracking-wider border-2"
+    }
+  },
+  "icons": {
+    "library": "lucide-react",
+    "usage": "Use large stroke-width (2.5 or 3) for better visibility. Icons must accompany primary actions to aid low-education users."
+  },
+  "media": {
+    "login_background": {
+      "url": "https://images.unsplash.com/photo-1513512995101-b6395de758b0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzd8MHwxfHNlYXJjaHwxfHx0aW1iZXIlMjBsb2dnaW5nJTIwZm9yZXN0fGVufDB8fHx8MTc3NzUzNTkwM3ww&ixlib=rb-4.1.0&q=85",
+      "description": "Timber logging forest background for the login screen."
+    }
+  },
+  "instructions_to_main_agent": [
+    "1. Setup App Layout: Ensure mobile-first design. Use a fixed bottom navigation on mobile (hidden on desktop) and a top navigation on desktop (hidden on mobile). Include user initials avatar in the header.",
+    "2. Typography: You MUST use IBM Plex Mono for all numeric values, inputs, and calculations. Use IBM Plex Sans for general text.",
+    "3. Page 1 - Purchases: List view of Bill of Ladings (BL). Each item needs large status badges (Pending, In Progress, Complete). Add/Edit modal should allow dynamic addition of container rows. Minimal typing, large buttons.",
+    "4. Page 2 - Measurements: The core data entry page. Select BL + Container first. Show a sticky/fixed running totals bar (Pieces, CBM1, CFT1, CBM2, CFT2, Avg) using the functional colors: Blue for CBM1/CFT1, Green for CBM2/CFT2, Amber for Totals.",
+    "5. Page 2 - Log Cards: Render multi-log entry cards. Each card must have 4 large numeric inputs: LE1, L, G1, G2. Use font-mono. Below the inputs in the same card, show live calculated CBM1/CFT1 (in blue text) and CBM2/CFT2 (in green text). If G1 or G2 < 35, add orange warning border to the input.",
+    "6. Page 2 - Actions: Include massive 'Add Log' and 'Add 5 Logs' buttons at the bottom of the list. Include a toggle to mark container as complete.",
+    "7. Page 3 - Dashboard: Show KPI chips at the top (Total BLs, Containers, Pieces, CBM1, CFT1, CBM2). Below, render BL-grouped expandable cards with container details.",
+    "8. Export: Provide 'Export to Excel' buttons (per BL, per container, and All) on the Dashboard using standard icons.",
+    "9. Accessibility/Testing: EVERY interactive element (buttons, inputs, tabs, selects) and key data display MUST have a `data-testid` attribute (e.g., `data-testid=\"add-log-button\"`).",
+    "10. Interactivity: Avoid complex HTML inputs like `<input type=\"date\">` or `<select>`, use Shadcn components but style them heavily to match the h-14 large-touch-target requirement.",
+    "11. Contrast: Ensure high contrast. The app is used by industrial workers, potentially outdoors."
+  ]
+}

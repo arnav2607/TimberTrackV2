@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: #f4f4f5;
+    color: #0f172a;
+}
+
+.font-mono,
+input[inputmode="decimal"],
+.tabular {
+    font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+}
+
+@layer base {
+    :root {
+        --background: 0 0% 96%;
+        --foreground: 222 47% 11%;
+        --card: 0 0% 100%;
+        --card-foreground: 222 47% 11%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 222 47% 11%;
+        --primary: 158 84% 17%; /* dark green #064E3B */
+        --primary-foreground: 0 0% 100%;
+        --secondary: 220 14% 96%;
+        --secondary-foreground: 222 47% 11%;
+        --muted: 220 14% 96%;
+        --muted-foreground: 215 16% 47%;
+        --accent: 158 64% 92%;
+        --accent-foreground: 158 84% 17%;
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 220 13% 88%;
+        --input: 220 13% 88%;
+        --ring: 158 84% 17%;
+        --radius: 0.75rem;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+    /* Bigger numeric inputs */
+    input[inputmode="decimal"]::-webkit-outer-spin-button,
+    input[inputmode="decimal"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+}
+
+/* Helpers */
+.app-shell {
+    min-height: 100vh;
+    padding-bottom: 5rem;
+}
+@media (min-width: 768px) {
+    .app-shell {
+        padding-bottom: 2rem;
+    }
+}
+
+.brand-grad {
+    background: linear-gradient(120deg, #064e3b 0%, #047857 60%, #059669 100%);
+}
+
+.kpi-stripe {
+    background-image: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.6),
+        rgba(255, 255, 255, 0)
+    );
+}
+
+/* Subtle paper grain for cards */
+.grain {
+    background-image: radial-gradient(
+        rgba(15, 23, 42, 0.04) 1px,
+        transparent 1px
+    );
+    background-size: 14px 14px;
+}
+
+/* Bottom nav safe-area */
+.bottom-nav-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Status badge variations */
+.badge-pending {
+    @apply bg-slate-100 text-slate-800 border-slate-300;
+}
+.badge-progress {
+    @apply bg-blue-100 text-blue-800 border-blue-300;
+}
+.badge-complete {
+    @apply bg-emerald-100 text-emerald-800 border-emerald-300;
+}
+
+/* Warning input */
+.warn-input {
+    border-color: #ea580c !important;
+    background-color: #fff7ed !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
