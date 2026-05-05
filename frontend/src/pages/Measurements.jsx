@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Plus, Trash2, CheckCircle2, Save, AlertTriangle, Ruler, Package, Container, ChevronDown } from "lucide-react";
+import { Plus, Trash2, CheckCircle2, Save, AlertTriangle, Ruler, Package, Container, ChevronDown, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -117,19 +117,140 @@ function CompletionFormModal({ open, onOpenChange, container, onSaved }) {
   );
 }
 
+// Individual Saved Log Card
+function SavedLogCard({ log, onDeleted, onUpdated }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [form, setForm] = useState({ le1: log.le1, l: log.l, g1: log.g1, g2: log.g2 });
+  const [saving, setSaving] = useState(false);
+
+  const calc = calcLog(form.le1, form.l, form.g1, form.g2);
+  const hasChanged = +form.le1 !== +log.le1 || +form.l !== +log.l || +form.g1 !== +log.g1 || +form.g2 !== +log.g2;
+
+  const saveChanges = async () => {
+    if (!hasChanged) return setIsEditing(false);
+    if (!form.le1 || !form.l || !form.g1 || !form.g2) {
+      return toast.error("All measurements required");
+    }
+    setSaving(true);
+    try {
+      await api.patch(`/log-measurements/${log.id}`, form);
+      toast.success("Log updated");
+      setIsEditing(false);
+      onUpdated();
+    } catch (e) {
+      toast.error("Update failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const deleteLog = async () => {
+    try {
+      await api.delete(`/log-measurements/${log.id}`);
+      toast.success("Log deleted");
+      onDeleted();
+    } catch (e) {
+      toast.error("Delete failed");
+    }
+  };
+
+  if (!isEditing) {
+    return (
+      <div className="bg-slate-50 rounded-xl border border-slate-200 p-3 sm:p-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded bg-slate-200 text-slate-700 flex items-center justify-center font-mono font-bold text-xs">
+              {log.log_number}
+            </div>
+            <span className="text-[10px] uppercase tracking-wider font-bold text-slate-500">Saved Log</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:text-emerald-700" onClick={() => setIsEditing(true)}>
+              <Pencil className="w-4 h-4" />
+            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-400 hover:text-rose-600">
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Log #{log.log_number}?</AlertDialogTitle>
+                  <AlertDialogDescription>This will permanently remove this measurement.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction className="bg-rose-600" onClick={deleteLog}>Delete</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        </div>
+        <div className="grid grid-cols-4 gap-2 text-center border-b border-slate-200 pb-2 mb-2">
+          <div><div className="text-[9px] uppercase text-slate-400 font-bold">LE1</div><div className="font-mono font-bold text-slate-700">{log.le1}</div></div>
+          <div><div className="text-[9px] uppercase text-slate-400 font-bold">L</div><div className="font-mono font-bold text-slate-700">{log.l}</div></div>
+          <div><div className="text-[9px] uppercase text-slate-400 font-bold">G1</div><div className="font-mono font-bold text-slate-700">{log.g1}</div></div>
+          <div><div className="text-[9px] uppercase text-slate-400 font-bold">G2</div><div className="font-mono font-bold text-slate-700">{log.g2}</div></div>
+        </div>
+        <div className="flex justify-between text-[10px] font-mono font-bold">
+          <div className="text-blue-700">{fmt(log.cbm1)} m³ / {fmt(log.cft1)} ft³</div>
+          <div className="text-emerald-700">{fmt(log.cbm2)} m³ / {fmt(log.cft2)} ft³</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-emerald-50 rounded-xl border-2 border-emerald-200 p-3 sm:p-4 shadow-sm">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded bg-emerald-700 text-white flex items-center justify-center font-mono font-bold text-xs">
+            {log.log_number}
+          </div>
+          <span className="text-[10px] uppercase tracking-wider font-bold text-emerald-800">Editing Log</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="sm" className="h-8 text-slate-500" onClick={() => setIsEditing(false)}>Cancel</Button>
+          <Button variant="default" size="sm" className="h-8 bg-emerald-700 hover:bg-emerald-800" disabled={saving || !hasChanged} onClick={saveChanges}>
+            {saving ? "..." : "Update"}
+          </Button>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-2 mb-3">
+        {["le1", "l", "g1", "g2"].map(k => (
+          <div key={k}>
+            <Label className="text-[9px] uppercase font-bold text-emerald-900">{k}</Label>
+            <Input
+              type="number"
+              value={form[k]}
+              onChange={(e) => setForm({ ...form, [k]: e.target.value })}
+              className="h-10 border-emerald-200 font-mono text-lg"
+            />
+          </div>
+        ))}
+      </div>
+      <div className="flex justify-between text-[10px] font-mono font-bold pt-2 border-t border-emerald-200">
+        <div className="text-blue-700">{fmt(calc.cbm1)} m³ / {fmt(calc.cft1)} ft³</div>
+        <div className="text-emerald-700">{fmt(calc.cbm2)} m³ / {fmt(calc.cft2)} ft³</div>
+      </div>
+    </div>
+  );
+}
+
 export default function Measurements() {
   const [purchases, setPurchases] = useState([]);
   const [selectedBl, setSelectedBl] = useState("");
   const [selectedContainer, setSelectedContainer] = useState(null);
   const [containerData, setContainerData] = useState(null); // {purchase, measurements,...}
-  const [logs, setLogs] = useState([blank()]);
+  const [logs, setLogs] = useState([]);
   const [markComplete, setMarkComplete] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loadingContainer, setLoadingContainer] = useState(false);
   const [showCompletionForm, setShowCompletionForm] = useState(false);
 
   useEffect(() => {
-    api.get("/purchases").then((r) => setPurchases(r.data)).catch(() => {});
+    api.get("/purchases").then((r) => setPurchases(r.data)).catch(() => { });
   }, []);
 
   const blOptions = purchases;
@@ -142,7 +263,7 @@ export default function Measurements() {
       const { data } = await api.get(`/containers/${containerId}`);
       setContainerData(data);
       setMarkComplete(!!data.is_loading_complete);
-      setLogs([blank()]);
+      setLogs([]);
     } catch (e) {
       toast.error("Failed to load container");
     } finally {
@@ -191,9 +312,9 @@ export default function Measurements() {
 
   const addLogs = (n) => setLogs((arr) => [...arr, ...Array.from({ length: n }, blank)]);
 
-  const removeLog = (idx) => setLogs((arr) => (arr.length === 1 ? [blank()] : arr.filter((_, i) => i !== idx)));
+  const removeLog = (idx) => setLogs((arr) => arr.filter((_, i) => i !== idx));
 
-  const clearAllDrafts = () => setLogs([blank()]);
+  const clearAllDrafts = () => setLogs([]);
 
   const save = async () => {
     if (!containerData) return;
@@ -296,18 +417,17 @@ export default function Measurements() {
                 completed: { bg: "bg-emerald-50", border: "border-emerald-300", icon: "bg-emerald-600" },
               };
               const colors = statusColors[c.status] || statusColors.pending;
-              
+
               return (
                 <button
                   type="button"
                   key={c.id}
                   onClick={() => onSelectContainer(c)}
                   data-testid={`container-btn-${c.container_number}`}
-                  className={`text-left p-4 rounded-xl border-2 transition ${
-                    active
+                  className={`text-left p-4 rounded-xl border-2 transition ${active
                       ? "border-[#064E3B] bg-emerald-50 shadow-md"
                       : `${colors.border} ${colors.bg} hover:border-slate-400 hover:shadow-sm`
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
@@ -340,7 +460,7 @@ export default function Measurements() {
               <div><div className="text-xs uppercase text-emerald-800/70 font-bold tracking-wider">Country</div><div className="font-semibold text-emerald-900">{containerData.purchase?.country}</div></div>
               <div><div className="text-xs uppercase text-emerald-800/70 font-bold tracking-wider">Date</div><div className="font-mono font-bold text-emerald-900">{containerData.purchase?.bl_date}</div></div>
             </div>
-            
+
             {/* Purchased values for reference */}
             {(containerData.cbm_gross || containerData.cbm_net || containerData.pcs_supplier) && (
               <div className="border-t border-emerald-300 pt-3">
@@ -383,8 +503,8 @@ export default function Measurements() {
                     {totals.pieces} / {containerData.pcs_supplier} pieces
                   </div>
                 </div>
-                <Progress 
-                  value={(totals.pieces / containerData.pcs_supplier) * 100} 
+                <Progress
+                  value={(totals.pieces / containerData.pcs_supplier) * 100}
                   className="h-3 bg-emerald-200"
                 />
               </div>
@@ -427,34 +547,55 @@ export default function Measurements() {
             </div>
           </div>
 
-          {/* Saved logs (collapsed summary) */}
+          {/* Saved logs list */}
           {saved.length > 0 && (
-            <div className="bg-white rounded-xl border border-slate-200 p-4 flex items-center justify-between">
-              <div className="text-sm">
-                <span className="font-mono font-bold text-emerald-800">{saved.length}</span>{" "}
-                <span className="text-slate-600">logs already saved.</span>
+            <div className="space-y-4">
+              <div className="bg-white rounded-xl border border-slate-200 p-4 flex items-center justify-between">
+                <div className="text-sm">
+                  <span className="font-mono font-bold text-emerald-800">{saved.length}</span>{" "}
+                  <span className="text-slate-600">logs already saved.</span>
+                </div>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="h-10 border-2 text-rose-600 border-rose-200 hover:bg-rose-50" data-testid="clear-saved-btn">
+                      <Trash2 className="w-4 h-4 mr-1" /> Clear All
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Clear all logs?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will delete every saved log measurement for this container. This cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction className="bg-rose-600 hover:bg-rose-700" onClick={clearAllSaved} data-testid="confirm-clear-saved">
+                        Yes, clear all
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-10 border-2 text-rose-600 border-rose-200 hover:bg-rose-50" data-testid="clear-saved-btn">
-                    <Trash2 className="w-4 h-4 mr-1" /> Clear
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Clear all logs?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This will delete every saved log measurement for this container. This cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction className="bg-rose-600 hover:bg-rose-700" onClick={clearAllSaved} data-testid="confirm-clear-saved">
-                      Yes, clear all
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {saved.map((s) => (
+                  <SavedLogCard
+                    key={s.id}
+                    log={s}
+                    onDeleted={async () => {
+                      await loadContainer(containerData.id);
+                      const r = await api.get("/purchases");
+                      setPurchases(r.data);
+                    }}
+                    onUpdated={async () => {
+                      await loadContainer(containerData.id);
+                      const r = await api.get("/purchases");
+                      setPurchases(r.data);
+                    }}
+                  />
+                ))}
+              </div>
             </div>
           )}
 
@@ -484,10 +625,10 @@ export default function Measurements() {
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {[
-                      { k: "le1", label: "LE1 (cm)", placeholder: "260", warn: false },
-                      { k: "l", label: "L (cm)", placeholder: "270", warn: false },
-                      { k: "g1", label: "G1 (cm)", placeholder: "55", warn: warnG1 },
-                      { k: "g2", label: "G2 (cm)", placeholder: "60", warn: warnG2 },
+                      { k: "le1", label: "LE1 (cm)",  warn: false },
+                      { k: "l", label: "L (cm)",  warn: false },
+                      { k: "g1", label: "G1 (cm)", warn: warnG1 },
+                      { k: "g2", label: "G2 (cm)", warn: warnG2 },
                     ].map((f) => (
                       <div key={f.k} className="space-y-1.5">
                         <Label className="text-xs uppercase tracking-wider font-bold text-slate-600">{f.label}</Label>
@@ -536,14 +677,6 @@ export default function Measurements() {
               className="h-14 border-2 font-bold text-base"
             >
               <Plus className="w-5 h-5 mr-1" strokeWidth={3} /> Add Log
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => addLogs(5)}
-              data-testid="add-5-logs-btn"
-              className="h-14 border-2 font-bold text-base"
-            >
-              <Plus className="w-5 h-5 mr-1" strokeWidth={3} /> Add 5 Logs
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -599,7 +732,7 @@ export default function Measurements() {
               </Button>
             </div>
           </div>
-          
+
           {/* Completion Form Modal */}
           <CompletionFormModal
             open={showCompletionForm}

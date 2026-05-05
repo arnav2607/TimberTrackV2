@@ -200,7 +200,7 @@ function PurchaseDialog({ open, onOpenChange, editing, onSaved }) {
     bl_number: "", bl_date: todayISO(), supplier_name: "",
     country: "", remarks: "",
   });
-  const [containers, setContainers] = useState([{ container_number: "", cbm_gross: null, cbm_net: null, pcs_supplier: null, l_avg: null, quality_supplier: "" }]);
+  const [containers, setContainers] = useState([]);
   const [newContainers, setNewContainers] = useState([]);
   const [saving, setSaving] = useState(false);
   
@@ -296,7 +296,7 @@ function PurchaseDialog({ open, onOpenChange, editing, onSaved }) {
       setNewContainers([]);
     } else if (open) {
       setForm({ bl_number: "", bl_date: todayISO(), supplier_name: "", country: "", remarks: "" });
-      setContainers([{ container_number: "", cbm_gross: null, cbm_net: null, pcs_supplier: null, l_avg: null, quality_supplier: "" }]);
+      setContainers([]);
       setNewContainers([]);
     }
   }, [editing, open]);

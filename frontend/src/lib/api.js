@@ -51,3 +51,7 @@ export const getDashboardKPIs = () => api.get("/dashboard/kpis");
 // Container completion form
 export const updateContainerCompletionForm = (containerId, data) =>
   api.patch(`/containers/${containerId}/completion-form`, data);
+
+// Individual Log APIs
+export const updateLogMeasurement = (logId, data) => api.patch(`/log-measurements/${logId}`, data);
+export const deleteLogMeasurement = (logId) => api.delete(`/log-measurements/${logId}`);

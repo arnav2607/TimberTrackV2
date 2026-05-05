@@ -135,6 +135,13 @@ class MeasurementsBulkIn(BaseModel):
     mark_complete: bool = False
 
 
+class LogUpdateIn(BaseModel):
+    le1: Optional[float] = None
+    l: Optional[float] = None
+    g1: Optional[float] = None
+    g2: Optional[float] = None
+
+
 class CompleteIn(BaseModel):
     is_complete: bool
 
@@ -471,6 +478,43 @@ async def clear_measurements(container_id: str, current=Depends(get_current_user
         raise HTTPException(status_code=404, detail="Not found")
     await db.log_measurements.delete_many({"container_id": container_id})
     await db.containers.update_one({"id": container_id}, {"$set": {"is_loading_complete": False}})
+    return {"ok": True}
+
+
+@api_router.patch("/log-measurements/{log_id}")
+async def update_log_measurement(log_id: str, payload: LogUpdateIn, current=Depends(get_current_user)):
+    log = await db.log_measurements.find_one({"id": log_id, "user_id": current["id"]})
+    if not log:
+        raise HTTPException(status_code=404, detail="Log not found")
+    
+    update_data = {}
+    if payload.le1 is not None: update_data["le1"] = payload.le1
+    if payload.l is not None: update_data["l"] = payload.l
+    if payload.g1 is not None: update_data["g1"] = payload.g1
+    if payload.g2 is not None: update_data["g2"] = payload.g2
+    
+    if update_data:
+        # Merge with existing values to recalculate
+        new_le1 = update_data.get("le1", log["le1"])
+        new_l = update_data.get("l", log["l"])
+        new_g1 = update_data.get("g1", log["g1"])
+        new_g2 = update_data.get("g2", log["g2"])
+        
+        calc = calc_log(new_le1, new_l, new_g1, new_g2)
+        update_data.update(calc)
+        
+        await db.log_measurements.update_one({"id": log_id}, {"$set": update_data})
+    
+    return {"ok": True}
+
+
+@api_router.delete("/log-measurements/{log_id}")
+async def delete_log_measurement(log_id: str, current=Depends(get_current_user)):
+    log = await db.log_measurements.find_one({"id": log_id, "user_id": current["id"]})
+    if not log:
+        raise HTTPException(status_code=404, detail="Log not found")
+    
+    await db.log_measurements.delete_one({"id": log_id})
     return {"ok": True}
 
 
